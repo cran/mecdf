@@ -6,25 +6,23 @@ mecdf = function (x)
 
 	nr = nrow (x)
 	nc = ncol (x)
-	p = numeric (nr)
-	for (i in 1:n)
-	{	v = numeric ()
-		for (j in 1:nc) v [j] = sum (x [,j] <= x [i, j])
-		p [i] = min (v)
-	}
-	p = p / nr
-
-	f = freemethod (.mecdf.evaluate, x, p, nr, nc)
+	f = freemethod (.mecdf.evaluate, x, nr, nc)
 	class (f) = "mecdf"
 	f
+}
+
+.mecdf.fitted = function (f, e)
+{	p = numeric (e$nr)
+	for (i in 1:e$nr) p [i] = f (e$x [i,])
+	p
 }
 
 #not vectorised properly
 #u is one (multivariate) realisation
 .mecdf.evaluate = function (u)
-{	v = 0
-	for (i in 1:.$nr) if (all (.$x [i,] <= u) && .$p [i] > v) v = .$p [i]
-	v
+{	k = rep (TRUE, .$nr)
+	for (i in 1:.$nc) k = k & (.$x [,i] <= u [i])
+	sum (k) / .$nr
 }
 
 print.mecdf = function (m, ...)
@@ -34,18 +32,26 @@ print.mecdf = function (m, ...)
 
 plot.mecdf = function (m, ...)
 {	e = environment (m)
-	if (e$nc == 1) .uecdf.plot (e, ...)
-	else if (e$nc == 2) .becdf.plot (e, ...)
+	p = .mecdf.fitted (m, e)
+	if (e$nc == 1) .uecdf.plot (e, p, ...)
+	else if (e$nc == 2) .becdf.plot (e, p, ...)
 	else stop ("plot.mecdf only supports univariate and bivariate case")
 }
 
-.uecdf.plot = function (e, ...) plot (e$x, e$p, ...)
+.uecdf.plot = function (e, p, ...) plot (e$x, p, ...)
 
-.becdf.plot = function (e, ...)
+.becdf.plot = function (e, p, lower=FALSE, upper=FALSE, ...)
 {	x1 = e$x [,1]; x2 = e$x [,2]
 	plot (x1, x2, pch=NA)
-	segments (x1, x2, x1 + 2 * diff (range (x1) ), x2, col="red")
-	segments (x1, x2, x1, x2 + 2 * diff (range (x2) ), col="red")
-	text (x1, x2, round (e$p, 2) )
+	if (lower)
+	{	segments (x1, x2, x1 - 2 * diff (range (x1) ), x2, col="red")
+		segments (x1, x2, x1, x2 - 2 * diff (range (x2) ), col="red")
+	}
+	if (upper)
+	{	segments (x1, x2, x1 + 2 * diff (range (x1) ), x2, col="red")
+		segments (x1, x2, x1, x2 + 2 * diff (range (x2) ), col="red")
+	}
+	text (x1, x2, round (p, 2) )
 }
+
 

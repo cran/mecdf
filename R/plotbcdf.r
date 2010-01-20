@@ -15,6 +15,12 @@ plotbcdf.mecdf = function (m, simple=TRUE, res=16, ulim, vlim, ...)
 	else
 	{	u = sort (unique (x [,1]) )
 		v = sort (unique (x [,2]) )
+		if (! attr (m, "continuous") )
+		{	uo = 0.1 * diff (range (u) )
+			vo = 0.1 * diff (range (v) )
+			u = c (u [1] - uo, u, u [length (u)] + uo)
+			v = c (v [1] - vo, v, v [length (v)] + vo)
+		}
 		nu = length (u)
 		nv = length (v)
 		mst = matrix (numeric (), nr=nu, nc=nv)
@@ -87,6 +93,7 @@ plotbcdf.matrix = function (m, mmin=0, mmax=1, ...)
 	nv = length (v) - 1
 	bc = rgb (0.08, 0.5, 0.5)
 	fc = rgb (0, 0.8, 0.1)
+	ec = rgb (0.7, 0.8, 0.9)
 	for (i in nu:1) for (j in nv:1)
 	{	u1 = u [i]
 		u2 = u [i + 1]
@@ -102,9 +109,16 @@ plotbcdf.matrix = function (m, mmin=0, mmax=1, ...)
 		up2 = c (u1, u1, u2, u2)
 		vp2 = c (v1, v1, v1, v1)
 		dir = (w [3] - w [1]) / sqrt ( (u2 - u1)^2 + (v2 - v1)^2)
-		.plotbcdf.poly (up1, vp1, w1, border=bc, col=fc)
-		.plotbcdf.poly (up2, vp2, w1, border=bc, col=fc)
-		.plotbcdf.poly (up, vp, w, border=bc, col="darkgreen")
+		if (i == 1 || i == nu || j == 1 || j == nv)
+		{	.plotbcdf.poly (up1, vp1, w1, border=bc, col=ec)
+			.plotbcdf.poly (up2, vp2, w1, border=bc, col=ec)
+			.plotbcdf.poly (up, vp, w, border=bc, col=ec)
+		}
+		else
+		{	.plotbcdf.poly (up1, vp1, w1, border=bc, col=fc)
+			.plotbcdf.poly (up2, vp2, w1, border=bc, col=fc)
+			.plotbcdf.poly (up, vp, w, border=bc, col="darkgreen")
+		}
 	}
 }
 
@@ -154,4 +168,5 @@ plotbcdf.matrix = function (m, mmin=0, mmax=1, ...)
 	col = col1 + x * (col2 - col1)
 	rgb (col [1], col [2], col [3])
 }
+
 

@@ -1,7 +1,7 @@
 Package: mecdf
-Title: Multivariate ECDF Based Models
-Version: 0.3.0
-Date: 2010-01-11
+Title: Multivariate ECDF-Based Models
+Version: 0.3.1
+Date: 2010-01-20
 Author: CHARLOTTE MAIA
 Maintainer: Charlotte Maia <maiagx@gmail.com>
 Description: Univariate and multivariate empirical cumulative
@@ -12,6 +12,6 @@ Description: Univariate and multivariate empirical cumulative
 License: GPL (>= 2)
 Depends: oosp (>= 0.2.0)
 Suggests: mvtnorm
-Packaged: 2010-01-11 01:32:28 UTC; maia
+Packaged: 2010-01-20 04:39:16 UTC; maia
 Repository: CRAN
-Date/Publication: 2010-01-11 07:42:48
+Date/Publication: 2010-01-20 08:00:00

@@ -1,7 +1,7 @@
-%\VignetteIndexEntry{Multivariate_ECDF_Based_Models}
+%\VignetteIndexEntry{Multivariate_ECDF-Based_Models}
 \documentclass {article}
 \usepackage {maia}
-\lfoot{mecdf 0.3.0}
+\lfoot{mecdf 0.3.1}
 \SweaveOpts{keep.source=TRUE}
 \SweaveOpts{prefix.string=tmp}
 
@@ -15,10 +15,10 @@ par(mar=c(5.1, 4.1, 1.1, 2.1))))
 
 \setkeys{Gin}{width=0.6\textwidth}
 
-\mtitlea {Multivariate ECDF Based Models (mecdf 0.3.0)}{Multivariate ECDF Based Models (Draft)}
+\mtitlea {Multivariate ECDF-Based Models (mecdf 0.3.1)}{Multivariate ECDF-Based Models (Draft)}
 
 \begin {abstract}
-This vignette introduces the mecdf package (and the multivariate ECDF based models that it implements). Such models generalise so-called empirical cumulative distribution functions (ECDFs); firstly to the multivariate case (i.e. for multiple random variables, with a joint distribution); and secondly by allowing both step functions (true ECDFs) and continuous functions (via interpolation). The package also contains special purpose functions for plotting univariate and bivariate ECDFs.
+This vignette introduces the mecdf package (and the multivariate ECDF-based models that it implements). Such models generalise so-called empirical cumulative distribution functions (ECDFs); firstly to the multivariate case (i.e. for multiple random variables, with a joint distribution); and secondly by allowing both step functions (true ECDFs) and continuous functions (via interpolation). The package also contains special purpose functions for plotting univariate and bivariate ECDFs.
 \end {abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -142,7 +142,7 @@ Now we have several cases:
 	p_1p_2 \mathrm {F}_{X_1, X_2}^* (b_1, b_2)
 \]
 
-We can generalise this to $k$ variables. For a grid with $k$ variables, there will be up to $2^k$ vertices. Hence the large computational cost. Using the matrix x, created earlier:
+We can generalise this to $k$ variables. For a grid with $k$ variables, there will be up to $2^k$ vertices, hence the large computational cost. In many cases, some (or even all) of the vertices will have the same value, so a further simplication may be possible. Using the matrix x, created earlier:
 \begin {center}
 <<fig=TRUE>>=
 m = mecdf (x, continuous=TRUE)
@@ -224,7 +224,7 @@ Now let's create three simulated datasets, from each of the distributions above 
 <<>>=
 #another convenience function
 normal.sim = function (n=1, cor=0)
-	rmvnorm (80, c (0, 0), matrix (c (1, cor, cor, 1), nr=2) )
+	rmvnorm (n, c (0, 0), matrix (c (1, cor, cor, 1), nr=2) )
 
 m0 = mecdf (normal.sim (120, 0) )
 mpos = mecdf (normal.sim (120, 1) )
@@ -247,8 +247,6 @@ plotbcdf (mneg)
 %Section
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \msec {Acknowledgments}
-
-Special thanks to:
 
 \begin {itemize}
 \item Martin Maechler, for the original ``ecdf'' function in R.

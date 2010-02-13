@@ -1,8 +1,7 @@
-plotbcdf = function (m, ...) UseMethod ("plotbcdf")
-bcdf.plot = function (...) plotbcdf (...)
+bcdfplot = function (m, ...) UseMethod ("bcdfplot")
 
-plotbcdf.mecdf = function (m, simple=TRUE, res=16, ulim, vlim, ...)
-{	x = environment (m)$x
+bcdfplot.mecdf = function (m, simple=TRUE, res=16, ulim, vlim, ...)
+{	x = m$x
 	if (missing (ulim) ) ulim = range (x [,1])
 	if (missing (vlim) ) vlim = range (x [,2])
 	if (simple)
@@ -10,7 +9,7 @@ plotbcdf.mecdf = function (m, simple=TRUE, res=16, ulim, vlim, ...)
 		v = seq (vlim [1], vlim [2], length=res)
 		mst = matrix (numeric (), nr=res, nc=res)
 		for (i in 1:res) for (j in 1:res) mst [i, j] = m (c (u [i], v [j]) )
-		plotbcdf (mst, ...)
+		bcdfplot (mst, ...)
 	}
 	else
 	{	u = sort (unique (x [,1]) )
@@ -29,13 +28,13 @@ plotbcdf.mecdf = function (m, simple=TRUE, res=16, ulim, vlim, ...)
 		vrng = range (v)
 		u = (u - urng [1]) / diff (urng)
 		v = (v - vrng [1]) / diff (vrng)
-		plotbcdf.matrix (NULL, ...)
+		bcdfplot.matrix (NULL, ...)
 		if (attr (m, "continuous") ) .plotbcdf.irregulargrid (mst, u, v)
 		else .plotbcdf.bsf (mst, u, v)
 	}
 }
 
-plotbcdf.matrix = function (m, mmin=0, mmax=1, ...)
+bcdfplot.matrix = function (m, mmin=0, mmax=1, ...)
 {	p0 = par (mar=c (1, 0.25, 1, 0.25) )
 	plot.new ()
 	plot.window (c (-0.75, 0.75), c (0, 1.5) )
@@ -66,7 +65,8 @@ plotbcdf.matrix = function (m, mmin=0, mmax=1, ...)
 		if (dir < 0) dir = 0
 		#scaling to interval (0, 1), tangent=1 -> dir=0.5
 		dir = 2 * atan (dir) / pi
-		.plotbcdf.poly (u, v, w, border=rgb (0.08, 0.6, 0.4), col=.colinterp (dir) )
+		.plotbcdf.poly (u, v, w, getOption ("mecdf.surface")$line,
+			.colinterp (dir) )
 	}
 }
 
@@ -84,7 +84,8 @@ plotbcdf.matrix = function (m, mmin=0, mmax=1, ...)
 		dir = (w [3] - w [1]) / sqrt ( (u2 - u1)^2 + (v2 - v1)^2)
 		if (dir < 0) dir = 0
 		dir = 2 * atan (dir) / pi
-		.plotbcdf.poly (up, vp, w, border=rgb (0.08, 0.6, 0.4), col=.colinterp (dir) )
+		.plotbcdf.poly (up, vp, w, getOption ("mecdf.surface")$line,
+			col=.colinterp (dir) )
 	}
 }
 
@@ -144,12 +145,13 @@ plotbcdf.matrix = function (m, mmin=0, mmax=1, ...)
 	.plotbcdf.lines (0.75, 1, 0:1)
 }
 
-.plotbcdf.poly = function (u, v, w, border="grey70", col="grey95")
+.plotbcdf.poly = function (u, v, w, border=getOption ("mecdf.frame")$line,
+	col=getOption ("mecdf.frame")$fill)
 {	m = .project (u, v, w)
 	polygon (m [,1], m [,2], border=border, col=col)
 }
 
-.plotbcdf.lines = function (u, v, w, col="grey70")
+.plotbcdf.lines = function (u, v, w, col=getOption ("mecdf.frame")$line)
 {	m = .project (u, v, w)
 	lines (m [,1], m [,2], col=col)
 }
@@ -163,10 +165,11 @@ plotbcdf.matrix = function (m, mmin=0, mmax=1, ...)
 }
 
 .colinterp = function (x)
-{	col1 = c (0, 0.4, 0.05)
-	col2 = c (0.2, 1, 0.1)
+{	col1 = getOption ("mecdf.surface")$fill1
+	col2 = getOption ("mecdf.surface")$fill2
 	col = col1 + x * (col2 - col1)
 	rgb (col [1], col [2], col [3])
 }
+
 
 

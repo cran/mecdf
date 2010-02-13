@@ -1,7 +1,7 @@
 %\VignetteIndexEntry{Multivariate_ECDF-Based_Models}
 \documentclass {article}
 \usepackage {maia}
-\lfoot{mecdf 0.3.1}
+\lfoot{mecdf 0.4.0}
 \SweaveOpts{keep.source=TRUE}
 \SweaveOpts{prefix.string=tmp}
 
@@ -15,10 +15,10 @@ par(mar=c(5.1, 4.1, 1.1, 2.1))))
 
 \setkeys{Gin}{width=0.6\textwidth}
 
-\mtitlea {Multivariate ECDF-Based Models (mecdf 0.3.1)}{Multivariate ECDF-Based Models (Draft)}
+\mtitlea {Multivariate ECDF-Based Models (mecdf 0.4.0)}{Multivariate ECDF-Based Models (Draft)}
 
 \begin {abstract}
-This vignette introduces the mecdf package (and the multivariate ECDF-based models that it implements). Such models generalise so-called empirical cumulative distribution functions (ECDFs); firstly to the multivariate case (i.e. for multiple random variables, with a joint distribution); and secondly by allowing both step functions (true ECDFs) and continuous functions (via interpolation). The package also contains special purpose functions for plotting univariate and bivariate ECDFs.
+This vignette introduces the mecdf package and multivariate ECDF-based models. Such models generalise so-called empirical cumulative distribution functions (ECDFs); firstly to the multivariate case (i.e. for multiple random variables, with a joint distribution); and secondly by allowing both step distribution functions (true ECDFs) and continuous distribution functions (via interpolation). The package also contains special purpose functions for plotting univariate and bivariate ECDFs.
 \end {abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -116,10 +116,8 @@ Where: $a$, the greatest realised value less than $u$; $b$, the smallest realise
 \begin {center}
 <<fig=TRUE>>=
 m = mecdf (x1)
-y = numeric (10)
-for (i in 1:10) y [i] = m (x1 [i])
 plot (m)
-points (x1, y, pch=16, cex=1.5)
+points (x1, m (x1), pch=16, cex=1.5)
 @
 \end {center}
 
@@ -203,7 +201,7 @@ normal.plot = function (cor=0, res=16, rng=c (-3.5, 3.5) )
 	for (i in 1:res) for (j in 1:res)
 		m [i, j] = pmvnorm (c (-Inf, -Inf), c (x1 [i], x2 [j]),
 			sigma=matrix (c (1, cor, cor, 1), nr=2) )
-	plotbcdf (m)
+	bcdfplot (m)
 }
 @
 
@@ -233,13 +231,13 @@ mneg = mecdf (normal.sim (120, -1) )
 
 \begin {center}
 <<fig=TRUE>>=
-plotbcdf (m0)
+bcdfplot (m0)
 @
 <<fig=TRUE>>=
-plotbcdf (mpos)
+bcdfplot (mpos)
 @
 <<fig=TRUE>>=
-plotbcdf (mneg)
+bcdfplot (mneg)
 @
 \end {center}
 
@@ -249,9 +247,10 @@ plotbcdf (mneg)
 \msec {Acknowledgments}
 
 \begin {itemize}
-\item Martin Maechler, for the original ``ecdf'' function in R.
-\item Christophe Dutang, for providing some encouragement and feedback to some of my earlier ideas.
-\item The mvtnorm package authors, for creating a package that I've used to test my models with.
+\item Martin Maechler, for creating a starting point (namely, the original ecdf function in R).
+\item The mvtnorm package authors, for creating another starting point (namely, the mvtnorm package).
+\item Christophe Dutang, for providing some very valuable feedback, especially to some of my earlier ideas.
+
 \end {itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -260,19 +259,12 @@ plotbcdf (mneg)
 \msec {Todo}
 
 \begin {enumerate}
-\item Refine the theoretical framework for the models, along with further research into associated multivariate models.
-\item Derive (hopefully) conditional expectation and conditional ECDF models, directly from the multivariate ECDF models.
-\item Polish the vignette.
-\item Create some good examples, including examples with more than two variables.
-\item Allow matrix arguments, for the distribution functions.
+\item Refine the theoretical framework for the models.
+\item Create some more examples, including examples with more than two random variables.
 \item Give the plotting functions more options.
-\item Optimise, and optimise some more...
+\item Optimise, optimise and optimise some more...
 \end {enumerate}
 
 \end{document}
-
-
-
-
 
 

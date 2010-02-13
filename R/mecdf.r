@@ -1,6 +1,6 @@
 mecdf = function (x, continuous, expand=0.1, validate=TRUE, project=FALSE)
 {	x = cbind (x)
-	if (is.null (colnames (x) ) ) colnames (x) = paste ("Xh", 1:ncol (x), sep="")
+	if (is.null (colnames (x) ) ) colnames (x) = paste ("x", 1:ncol (x), sep="")
 	nr = nrow (x)
 	nc = ncol (x)
 	if (validate)
@@ -23,29 +23,47 @@ mecdf = function (x, continuous, expand=0.1, validate=TRUE, project=FALSE)
 	if (project) for (j in 1:nc) x [,j] = (order (order (x [,j]) ) - 1) / (nr - 1)
 	if (nc == 1) x [] = sort (x)
 	if (missing (continuous) ) continuous = (nc == 1)
-	Fh = if (continuous)
-	{	Fh = freemethod (.mecdf.continuous, x, nr, nc)
-		e = environment (Fh)
-		e$Fst = freemethod (.mecdf.vertex)
+	m = FUNCTION (.mecdf.main, x, nr, nc)
+	e = environment (m)
+	if (continuous)
+	{	e$Fh = FUNCTION (.mecdf.continuous)
+		e$Fst = FUNCTION (.mecdf.vertex)
 		environment (e$Fst) = e
-		Fh
 	}
-	else freemethod (.mecdf.step, x, nr, nc)
-	structure (Fh, class="mecdf", continuous=continuous)
+	else e$Fh = FUNCTION (.mecdf.step)
+	environment (e$Fh) = e
+	extend (structure (m, continuous=continuous), "mecdf")
+}
+
+#inefficient
+.mecdf.main = function (u)
+{	if (is.matrix (u) )
+	{	n = nrow (u)
+		v = numeric (n)
+		for (i in 1:n) v [i] = .$Fh (u [i,])
+		v
+	}
+	else
+	{	n = length (u)
+		if (.$nc == 1 && n > 1)
+		{	v = numeric (n)
+			for (i in 1:n) v [i] = .$Fh (u [i])
+			v
+		}
+		else .$Fh (u)
+	}
 }
 
 print.mecdf = function (m, ...)
-{	e = environment (m)
-	type = if (attr (m, "continuous") ) "continuous" else "step"
+{	type = if (attr (m, "continuous") ) "continuous" else "step"
 	cat ("mecdf:", type, "function\n      ",
-		e$nr, "realisations of", e$nc, "random variables\n")
+		m$nr, "realisations of", m$nc, "random variables\n")
 }
 
 plot.mecdf = function (m, ...)
-{	e = environment (m)
-	p = .mecdf.fitted (m, e)
-	if (e$nc == 1) .uecdf.plot (e, p, attr (m, "continuous"), ...)
-	else if (e$nc == 2) .becdf.plot (e, p, ...)
+{	p = m (m$x)
+	if (m$nc == 1) .uecdf.plot (m, p, attr (m, "continuous"), ...)
+	else if (m$nc == 2) .becdf.plot (m, p, ...)
 	else stop ("plot.mecdf only supports univariate and bivariate models")
 }
 
@@ -80,9 +98,4 @@ plot.mecdf = function (m, ...)
 	text (x1, x2, round (p, 2) )
 }
 
-.mecdf.fitted = function (m, e)
-{	p = numeric (e$nr)
-	for (i in 1:e$nr) p [i] = m (e$x [i,])
-	p
-}
 

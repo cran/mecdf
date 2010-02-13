@@ -1,14 +1,16 @@
-\name{plotbcdf}
+\name{bcdfplot}
+\alias{bcdfplot}
+\alias{bcdfplot.mecdf}
+\alias{bcdfplot.matrix}
 \alias{plotbcdf}
-\alias{plotbcdf.mecdf}
-\alias{plotbcdf.matrix}
 \alias{bcdf.plot}
 \title{plots of bivariate cdfs}
-\description{Functions for plotting bivariate CDFs in 3D. Currently, very limited options. More options are likely to be added to future versions. Warning 1: The function bcdf.plot is deprecated, do not use. Warning 2: Setting simple to false, may require a very large amount of computational time and space, except for very small samples.}
+\description{Functions for plotting bivariate CDFs in 3D. Currently, very limited options. More options are likely to be added to future versions. Warning 1: The functions plotbcdf and bcdf.plot are deprecated, do not use. Warning 2: Setting simple to false, may require a very large amount of computational time and space, except for very small samples.}
 \usage{
-plotbcdf (m, ...)
-\method{plotbcdf}{mecdf}(m, simple=TRUE, res=16, ulim, vlim, \dots)
-\method{plotbcdf}{matrix}(m, mmin=0, mmax=1, \dots)
+bcdfplot (m, ...)
+\method{bcdfplot}{mecdf}(m, simple=TRUE, res=16, ulim, vlim, \dots)
+\method{bcdfplot}{matrix}(m, mmin=0, mmax=1, \dots)
+plotbcdf (...)
 bcdf.plot (...)
 }
 \arguments{
@@ -21,4 +23,6 @@ bcdf.plot (...)
 \item{mmax}{Maximum value.}
 \item{\dots}{Their just there.}
 }
+
+
 

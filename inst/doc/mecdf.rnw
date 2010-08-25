@@ -1,25 +1,23 @@
-%\VignetteIndexEntry{Multivariate_ECDF-Based_Models}
+%\VignetteIndexEntry{Multivariate_Empirical_Cumulative_Distribution_Functions}
+
 \documentclass {article}
-\usepackage {maia}
-\lfoot{mecdf 0.4.1}
+\usepackage {maia2}
 \SweaveOpts{keep.source=TRUE}
 \SweaveOpts{prefix.string=tmp}
-
 \begin{document}
 
 <<echo=false>>=
 options(continue=" ")
 options(SweaveHooks=list(fig=function()
 par(mar=c(5.1, 4.1, 1.1, 2.1))))
+library (mecdf)
 @
 
 \setkeys{Gin}{width=0.6\textwidth}
 
-\mtitlea {Multivariate ECDF-Based Models (mecdf 0.4.1)}{Multivariate ECDF-Based Models (Draft)}
+\mtitle {mecdf}{0.4.2}{Multivariate Empirical\\Cumulative Distribution Functions}
 
-\begin {abstract}
-This vignette introduces the mecdf package and multivariate ECDF-based models. Such models generalise so-called empirical cumulative distribution functions (ECDFs); firstly to the multivariate case (i.e. for multiple random variables, with a joint distribution); and secondly by allowing both step distribution functions (true ECDFs) and continuous distribution functions (via interpolation). The package also contains special purpose functions for plotting univariate and bivariate ECDFs.
-\end {abstract}
+\mabstract {This vignette introduces the mecdf package and multivariate ECDF-based models. Such models generalise so-called empirical cumulative distribution functions (ECDFs); firstly to the multivariate case (i.e. for multiple random variables, with a joint distribution); and secondly by allowing both step distribution functions (true ECDFs) and continuous distribution functions (via interpolation). The package also contains special purpose functions for plotting univariate and bivariate ECDFs.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Section

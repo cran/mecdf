@@ -5,7 +5,7 @@ makeall:
 makedev:
 	make mecdf.pdf
 
-mecdf.pdf: mecdf.tex maia.sty
+mecdf.pdf: mecdf.tex maia2.sty
 	pdflatex mecdf.tex
 
 mecdf.tex: mecdf.rnw
@@ -17,5 +17,4 @@ clean:
 	rm *.log
 	rm tmp*
 	rm Rplots*
-
 

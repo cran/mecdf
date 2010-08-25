@@ -1,0 +1,49 @@
+\usepackage{color,fancyhdr,amsmath,amssymb}
+\usepackage[nogin]{Sweave}
+\setlength{\topmargin}{-2.15cm}
+\setlength{\topskip}{0cm}
+\setlength{\textheight}{23.4cm}
+\setlength{\textwidth}{15.8cm}
+\setlength{\oddsidemargin}{0.3cm}
+\setlength{\evensidemargin}{0.3cm}
+\pagestyle{fancy}
+\linespread{1.1}
+\lhead{}
+\chead{}
+\rhead{}
+\cfoot{Charlotte Maia}
+\rfoot{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\DefineVerbatimEnvironment{Sinput}{Verbatim}{xleftmargin=2em, formatcom=\color{rin}}
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=2em,formatcom=\color{rout}}
+\DefineVerbatimEnvironment{Scode}{Verbatim}{xleftmargin=2em}
+\fvset{listparameters={\setlength{\topsep}{0pt}}}
+\renewenvironment{Schunk}{\vspace{\topsep}}{\vspace{\topsep}}
+
+\newcommand {\mtitle}[3]
+{	\title {\vspace {-0.6cm} {\normalsize package: \underline {#1 #2} } \\[0.22cm] {\textbf {\huge #3} } }
+	\author {\textbf {Charlotte Maia} }
+	\maketitle
+	\lfoot{#1 #2}
+	\thispagestyle {empty}
+}
+
+\newcommand {\mabstract}[1]
+{	\begin {center}
+	\begin {minipage}{15.8cm}
+		{\textsl {#1} }
+	\end {minipage}
+	\end {center}
+	\vspace {0.06cm}
+}
+
+\newcommand {\msec}[1] {\section* {#1} }
+\newcommand {\mapp}[2]
+	{\newpage \begin {center} {\Large {Appendix} #1: \\[0.2cm] \textbf {#2} }\end {center} }
+
+\definecolor{msec}{rgb}{0.06, 0, 0.22}
+\definecolor{rin}{rgb}{0, 0, 0.32}
+\definecolor{rout}{rgb}{0, 0.14, 0}
+
+

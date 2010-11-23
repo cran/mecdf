@@ -1,16 +1,14 @@
 Package: mecdf
 Title: Multivariate Empirical Cumulative Distribution Functions
-Version: 0.4.2
-Date: 2010-08-25
+Version: 0.5.0
+Date: 2010-11-23
 Author: Charlotte Maia
 Maintainer: Charlotte Maia <maiagx@gmail.com>
-Description: Univariate and multivariate empirical cumulative
-        distribution functions (ECDFs), including both step
-        distribution functions (true ECDFs) and continuous distribution
-        functions.
+Description: Multivariate empirical cumulative distribution functions,
+        including both step functions and continuous functions.
 License: GPL (>= 2)
-Depends: ofp (>= 0.4.0)
+Depends: ofp (>= 0.5.0)
 Suggests: mvtnorm
-Packaged: 2010-08-25 01:30:20 UTC; maia
+Packaged: 2010-11-23 03:28:27 UTC; maia
 Repository: CRAN
-Date/Publication: 2010-09-16 06:37:24
+Date/Publication: 2010-11-27 07:11:41

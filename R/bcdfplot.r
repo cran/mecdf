@@ -1,6 +1,6 @@
-bcdfplot = function (m, ...) UseMethod ("bcdfplot")
+plotbcdf = function (m, ...) UseMethod ("plotbcdf")
 
-bcdfplot.mecdf = function (m, simple=TRUE, res=16, ulim, vlim, ...)
+plotbcdf.mecdf = function (m, simple=TRUE, res=16, ulim, vlim, ...)
 {	x = m$x
 	if (missing (ulim) ) ulim = range (x [,1])
 	if (missing (vlim) ) vlim = range (x [,2])
@@ -9,7 +9,7 @@ bcdfplot.mecdf = function (m, simple=TRUE, res=16, ulim, vlim, ...)
 		v = seq (vlim [1], vlim [2], length=res)
 		mst = matrix (numeric (), nr=res, nc=res)
 		for (i in 1:res) for (j in 1:res) mst [i, j] = m (c (u [i], v [j]) )
-		bcdfplot (mst, ...)
+		plotbcdf (mst, ...)
 	}
 	else
 	{	u = sort (unique (x [,1]) )
@@ -28,13 +28,13 @@ bcdfplot.mecdf = function (m, simple=TRUE, res=16, ulim, vlim, ...)
 		vrng = range (v)
 		u = (u - urng [1]) / diff (urng)
 		v = (v - vrng [1]) / diff (vrng)
-		bcdfplot.matrix (NULL, ...)
+		plotbcdf.matrix (NULL, ...)
 		if (attr (m, "continuous") ) .plotbcdf.irregulargrid (mst, u, v)
 		else .plotbcdf.bsf (mst, u, v)
 	}
 }
 
-bcdfplot.matrix = function (m, mmin=0, mmax=1, ...)
+plotbcdf.matrix = function (m, mmin=0, mmax=1, ...)
 {	p0 = par (mar=c (1, 0.25, 1, 0.25) )
 	plot.new ()
 	plot.window (c (-0.75, 0.75), c (0, 1.5) )
@@ -170,6 +170,4 @@ bcdfplot.matrix = function (m, mmin=0, mmax=1, ...)
 	col = col1 + x * (col2 - col1)
 	rgb (col [1], col [2], col [3])
 }
-
-
 

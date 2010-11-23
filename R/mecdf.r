@@ -25,12 +25,19 @@ mecdf = function (x, continuous, expand=0.1, validate=TRUE, project=FALSE)
 	if (missing (continuous) ) continuous = (nc == 1)
 	m = FUNCTION (.mecdf.main, x, nr, nc)
 	e = environment (m)
-	if (continuous)
-	{	e$Fh = FUNCTION (.mecdf.continuous)
-		e$Fst = FUNCTION (.mecdf.vertex)
-		environment (e$Fst) = e
+	if (nc == 1)
+	{	if (continuous) e$Fh = FUNCTION (.mecdf.continuous.univariate)
+		else e$Fh = FUNCTION (.mecdf.step.univariate)
 	}
-	else e$Fh = FUNCTION (.mecdf.step)
+	else
+	{	if (continuous)
+		{	e$Fh = FUNCTION (.mecdf.continuous)
+			e$Fst = FUNCTION (.mecdf.vertex)
+			environment (e$Fst) = e
+		}
+		else
+			e$Fh = FUNCTION (.mecdf.step)
+	}
 	environment (e$Fh) = e
 	extend (structure (m, continuous=continuous), "mecdf")
 }
@@ -97,5 +104,6 @@ plot.mecdf = function (m, ...)
 	}
 	text (x1, x2, round (p, 2) )
 }
+
 
 

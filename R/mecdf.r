@@ -1,77 +1,79 @@
-mecdf = function (x, continuous, expand=0.1, validate=TRUE, project=FALSE)
+mecdf = function (x, continuous=FALSE, ...,
+	validate=TRUE, expand=continuous, project=FALSE, expandf=0.1)
 {	x = cbind (x)
-	if (is.null (colnames (x) ) ) colnames (x) = paste ("x", 1:ncol (x), sep="")
-	nr = nrow (x)
+	nraw = nr = nrow (x)
 	nc = ncol (x)
 	if (validate)
-	{	if (!is.numeric (x) ) stop ("x must be numeric")
+	{	if (length (list (...) ) > 0)
+			stop ("invalid constructor argument")
+		if (!is.numeric (x) ) stop ("x must be numeric")
 		if (!all (is.finite (x) ) ) stop ("all x must be finite")
 		for (j in 1:nc) if (length (unique (x [,j]) ) < 2)
 			stop ("each variable requires at least 2 distinct realisations")
+		if (nc == 1) x [] = sort (x)
+		if (is.null (colnames (x) ) ) colnames (x) = paste ("x", 1:ncol (x), sep="")
+		if (is.null (rownames (x) ) ) rownames (x) = 1:nr
 	}
-	if (!is.na (expand) )
+	if (expand)
 	{	nr = nr + 2
 		a = b = numeric (nc)
 		for (j in 1:nc)
 		{	xrng = range (x [,j])
-			xf = expand * diff (xrng)
+			xf = expandf * diff (xrng)
 			a [j] = xrng [1] - xf
 			b [j] = xrng [2] + xf
 		}
 		x = rbind (a, x, b)
 	}
-	if (project) for (j in 1:nc) x [,j] = (order (order (x [,j]) ) - 1) / (nr - 1)
-	if (nc == 1) x [] = sort (x)
-	if (missing (continuous) ) continuous = (nc == 1)
-	m = FUNCTION (.mecdf.main, x, nr, nc)
-	e = environment (m)
-	if (nc == 1)
-	{	if (continuous) e$Fh = FUNCTION (.mecdf.continuous.univariate)
-		else e$Fh = FUNCTION (.mecdf.step.univariate)
-	}
-	else
+	if (project)
+		for (j in 1:nc) x [,j] = (order (order (x [,j]) ) - 1) / (nr - 1)
+	Fh = Fst = NULL
+	if (nc > 1)
 	{	if (continuous)
-		{	e$Fh = FUNCTION (.mecdf.continuous)
-			e$Fst = FUNCTION (.mecdf.vertex)
-			environment (e$Fst) = e
+		{	Fh = .mecdf.continuous
+			Fst = .mecdf.vertex
 		}
-		else
-			e$Fh = FUNCTION (.mecdf.step)
-	}
-	environment (e$Fh) = e
-	extend (structure (m, continuous=continuous), "mecdf")
-}
-
-#inefficient
-.mecdf.main = function (u)
-{	if (is.matrix (u) )
-	{	n = nrow (u)
-		v = numeric (n)
-		for (i in 1:n) v [i] = .$Fh (u [i,])
-		v
+		else Fh = FUNCTION (.mecdf.step)
 	}
 	else
-	{	n = length (u)
-		if (.$nc == 1 && n > 1)
-		{	v = numeric (n)
-			for (i in 1:n) v [i] = .$Fh (u [i])
-			v
-		}
-		else .$Fh (u)
+	{	if (continuous) Fh = .uecdf.continuous
+		else Fh =.uecdf.step
+	}
+	extend (FUNCTION (.mecdf.main), "mecdf", continuous, Fh, Fst, nraw, nr, nc, x)
+}
+
+.mecdf.main = function (u)
+{	if (.$nc > 1)
+	{	if (!is.matrix (u) ) u = rbind (u)
+		if (.$nc != ncol (u) )
+			stop ("k-variate mecdf requires k-column matrix")
+		.mecdf.interpolate (.$Fh, .$Fst, .$nr, .$nc, .$x, u)
+	}
+	else
+	{	if (is.matrix (u) && ncol (u) > 1)
+			stop ("univariate mecdf doesn't accept multicolumn matrix")
+		.uecdf.interpolate (.$Fh, .$nr, .$x, u)
 	}
 }
 
-print.mecdf = function (m, ...)
-{	type = if (attr (m, "continuous") ) "continuous" else "step"
-	cat ("mecdf:", type, "function\n      ",
-		m$nr, "realisations of", m$nc, "random variables\n")
+print.mecdf = function (x, ...) s3x_print (m=x, ...)
+
+plot.mecdf = function (x, ...) s3x_plot (m=x, ...)
+
+s3x_print.mecdf = function (m, ...)
+{	variate = if (m$nc == 1) "univariate"
+	else if (m$nc == 2) "bivariate"
+	else paste (m$nc, "-variate", sep="")
+	type = if (m$continuous) "continuous" else "step"
+	cat ("mecdf_{", variate, ", ", type, "}\n", sep="")
+	print (samp (m$x) )
 }
 
-plot.mecdf = function (m, ...)
+s3x_plot.mecdf = function (m, ...)
 {	p = m (m$x)
-	if (m$nc == 1) .uecdf.plot (m, p, attr (m, "continuous"), ...)
+	if (m$nc == 1) .uecdf.plot (m, p, m$continuous, ...)
 	else if (m$nc == 2) .becdf.plot (m, p, ...)
-	else stop ("plot.mecdf only supports univariate and bivariate models")
+	else stop ("s3x_plot.mecdf only supports univariate and bivariate models")
 }
 
 .uecdf.plot = function (e, p, continuous, ...)
@@ -89,21 +91,15 @@ plot.mecdf = function (m, ...)
 	}
 }
 
-.becdf.plot = function (e, p, col, lower=FALSE, upper=FALSE, ...)
+.becdf.plot = function (e, p, lines=TRUE, lty=1, col=rgb (0.975, 0.7, 0), ...)
 {	labs = colnames (e$x)
 	x1 = e$x [,1]; x2 = e$x [,2]
-	if (missing (col) ) col = rgb (0.975, 0.7, 0)
 	plot (x1, x2, xlab=labs [1], ylab=labs [2], pch=NA, ...)
-	if (lower)
-	{	segments (x1, x2, x1 - 2 * diff (range (x1) ), x2, col=col)
-		segments (x1, x2, x1, x2 - 2 * diff (range (x2) ), col=col)
-	}
-	if (upper)
-	{	segments (x1, x2, x1 + 2 * diff (range (x1) ), x2, col=col)
-		segments (x1, x2, x1, x2 + 2 * diff (range (x2) ), col=col)
+	if (lines)
+	{	segments (x1, x2, x1 - 2 * diff (range (x1) ), x2, lty=lty, col=col)
+		segments (x1, x2, x1, x2 - 2 * diff (range (x2) ), lty=lty, col=col)
 	}
 	text (x1, x2, round (p, 2) )
 }
-
 
 

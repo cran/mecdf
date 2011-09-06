@@ -1,20 +1,20 @@
 plotbcdf = function (m, ...) UseMethod ("plotbcdf")
 
-plotbcdf.mecdf = function (m, simple=TRUE, res=16, ulim, vlim, ...)
+plotbcdf.mecdf = function (m, regular=TRUE, res=16, ulim, vlim, ...)
 {	x = m$x
 	if (missing (ulim) ) ulim = range (x [,1])
 	if (missing (vlim) ) vlim = range (x [,2])
-	if (simple)
+	if (regular)
 	{	u = seq (ulim [1], ulim [2], length=res)
 		v = seq (vlim [1], vlim [2], length=res)
 		mst = matrix (numeric (), nr=res, nc=res)
 		for (i in 1:res) for (j in 1:res) mst [i, j] = m (c (u [i], v [j]) )
-		plotbcdf (mst, ...)
+		plotbcdf (mst, ..., labs=colnames (x) )
 	}
 	else
 	{	u = sort (unique (x [,1]) )
 		v = sort (unique (x [,2]) )
-		if (! attr (m, "continuous") )
+		if (!m$continuous)
 		{	uo = 0.1 * diff (range (u) )
 			vo = 0.1 * diff (range (v) )
 			u = c (u [1] - uo, u, u [length (u)] + uo)
@@ -28,20 +28,22 @@ plotbcdf.mecdf = function (m, simple=TRUE, res=16, ulim, vlim, ...)
 		vrng = range (v)
 		u = (u - urng [1]) / diff (urng)
 		v = (v - vrng [1]) / diff (vrng)
-		plotbcdf.matrix (NULL, ...)
-		if (attr (m, "continuous") ) .plotbcdf.irregulargrid (mst, u, v)
+		plotbcdf.matrix (NULL, ..., labs=colnames (x) )
+		if (m$continuous) .plotbcdf.irregulargrid (mst, u, v)
 		else .plotbcdf.bsf (mst, u, v)
 	}
 }
 
-plotbcdf.matrix = function (m, mmin=0, mmax=1, ...)
-{	p0 = par (mar=c (1, 0.25, 1, 0.25) )
+plotbcdf.matrix = function (m, mmin=0, mmax=1, ..., labs=NULL)
+{	p0 = par (mar=c (1.75, 0.175, 0.9, 0.175) )
 	plot.new ()
 	plot.window (c (-0.75, 0.75), c (0, 1.5) )
 	.plotbcdf.plane.uv ()
 	.plotbcdf.plane.u2 ()
 	.plotbcdf.plane.v2 ()
-	if (ifst (m) )
+	if (ifo (labs) )
+		.plotbcdf.labs (rev (labs) )
+	if (ifo (m) )
 	{	n = nrow (m)
 		if (n != ncol (m) ) stop ("square matrix required")
 		m = (m - mmin) / (mmax - mmin)
@@ -123,7 +125,16 @@ plotbcdf.matrix = function (m, mmin=0, mmax=1, ...)
 	}
 }
 
-.plotbcdf.plane.uv = function () .plotbcdf.poly (c (0, 0, 1, 1), c (0, 1, 1, 0), 0)
+.plotbcdf.plane.uv = function ()
+{	.plotbcdf.poly (c (0, 0, 1, 1), c (0, 1, 1, 0), 0)
+	p1 = .project (0, 0, 0)
+	p2 = .project (0, 1, 0)
+	p3 = .project (1, 0, 0)
+	z = 0.03
+	col = getOption ("mecdf.frame")$line
+	arrows (p1 [1] - z, p1 [2] - z, p2 [1] - z, p2 [2] - z, col=col, length=0.12)
+	arrows (p1 [1] + z, p1 [2] - z, p3 [1] + z, p3 [2] - z, col=col, length=0.12)
+}
 
 .plotbcdf.plane.u2 = function ()
 {	.plotbcdf.poly (1, c (0, 0, 1, 1), c (0, 1, 1, 0) )
@@ -145,6 +156,12 @@ plotbcdf.matrix = function (m, mmin=0, mmax=1, ...)
 	.plotbcdf.lines (0.75, 1, 0:1)
 }
 
+.plotbcdf.labs = function (labs)
+{	x = c (-0.525, 0.525)
+	y = 0.16
+	text (x, y, labs)
+}
+
 .plotbcdf.poly = function (u, v, w, border=getOption ("mecdf.frame")$line,
 	col=getOption ("mecdf.frame")$fill)
 {	m = .project (u, v, w)
@@ -156,7 +173,7 @@ plotbcdf.matrix = function (m, mmin=0, mmax=1, ...)
 	lines (m [,1], m [,2], col=col)
 }
 
-#todo, fix this up...
+#todo, fix this...
 .project = function (u, v, w)
 {	x = u * cos (pi / 4) + v * cos (pi * 3 / 4)
 	y = u * sin (pi / 4) + v * sin (pi * 3 / 4)
@@ -170,4 +187,7 @@ plotbcdf.matrix = function (m, mmin=0, mmax=1, ...)
 	col = col1 + x * (col2 - col1)
 	rgb (col [1], col [2], col [3])
 }
+
+
+
 

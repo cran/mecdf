@@ -14,9 +14,9 @@ library (mecdf)
 
 \setkeys{Gin}{width=0.6\textwidth}
 
-\mtitle {mecdf}{0.5.0}{Multivariate Empirical\\Cumulative Distribution Functions}
+\mtitle {mecdf}{0.6.0}{Multivariate Empirical\\Cumulative Distribution Functions}
 
-\mabstract {This vignette introduces the mecdf package and multivariate ECDF-based models. Such models generalise so-called empirical cumulative distribution functions (ECDFs); firstly to the multivariate case (i.e. for multiple random variables, with a joint distribution); and secondly by allowing both step distribution functions (true ECDFs) and continuous distribution functions (via interpolation). The package also contains special purpose functions for plotting univariate and bivariate ECDFs.}
+\mabstract {This vignette gives an overview of the mecdf package. The main purpose of the package, is to use multivariate empirical cumulative distribution functions (multivariate ECDFs) to model real-world data. The package also supports both step functions and continuous functions.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Section
@@ -27,7 +27,7 @@ We will assume the reader has a basic understanding of both multivariate CDFs an
 \[	\mathrm {F}_X (x) = \mathbb {P} (X \leq x)
 \]
 
-For the bivariate case, we now have two random variables. We are interested in the probably that the first random variable takes some value less than or equal to some other value, and that the second random variable also takes some value less than or equal to some other value:
+For the bivariate case, we now have two random variables. We are interested in the probably that the first random variable takes some value less than or equal to some other value and that the second random variable also takes some value less than or equal to some other value:
 \[	\mathrm {F}_{X_1, X_2} (x_1, x_2) = \mathbb {P} (X_1 \leq x_1, X_2 \leq x_2)
 \]
 
@@ -39,7 +39,7 @@ Often we are interested in estimating the distribution from some data (most comm
 \[	\hat {\mathrm {F} }_X (u) = \frac {\sum_{\forall i} \mathrm {I} (\mathbf {x}_{[i]} \leq u)}{n}
 \]
  
-In the expression above, I've replaced $x$ with $u$, and are using $\mathbf {x}$ (here a vector), to denote the realised values of the random variable $X$. The function $\mathrm {I}$ is an indicator function, which is equal one when the enclosed expression is true, and zero otherwise.
+In the expression above, $x$ has been replaced with with $u$ and $\mathbf {x}$ (here a vector) denotes the realised values of the random variable $X$. The function $\mathrm {I}$ is an indicator function, which is equal one when the enclosed expression is true, and zero otherwise.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Section
@@ -71,19 +71,22 @@ m = mecdf (x)
 m
 @
 
-Note that there are two extra realisations (their kind of fake). We can prevent this from happening, however they are there for a reason. This is discussed later (in the section on model expansion). Our model, is also a regular R function, and we can use it to evaluate the estimated distribution function over some point.
+Our model, is also an R function and we can use it to evaluate the estimated distribution function over some point.
 <<>>=
 m (c (0.5, 0.5) )
 @
 
-The mecdf package provides multiple ways to visualise bivariate ECDFs. That standard way, via plot, produces a plot of one variable against the other, with the values of the distribution function shown on the plot. There are also 3D plots using the function plotbcdf. By default, these produce surfaces evaluated over a regularly spaced grid. However, by including the argument simple=FALSE (not recommended for large samples), we can produce a surface over the actual realised values (which form an irregularly spaced grid). For step functions (which is what we have here), our surface is discontinuous. In the next section (with a continuous functions) our surface is continuous.
+The mecdf package provides multiple ways to visualise bivariate ECDFs. That standard way, via plot, produces a plot of one variable against the other, with the values of the distribution function shown on the plot. There are also 3D plots using the function plotbcdf. By default, these produce surfaces evaluated over a regularly spaced grid. However, by including the argument regular=FALSE (not recommended for large samples), we can produce a surface over the actual realised values (which form an irregularly spaced grid). For step functions (which is what we have here), our surface is discontinuous. In the next section (with continuous functions) our surface is continuous.
 
 \begin {center}
 <<fig=TRUE>>=
 plot (m)
 @
 <<fig=TRUE>>=
-plotbcdf (m, simple=FALSE)
+plotbcdf (m)
+@
+<<fig=TRUE>>=
+plotbcdf (m, regular=FALSE)
 @
 \end {center}
 
@@ -92,7 +95,7 @@ plotbcdf (m, simple=FALSE)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \msec {The Continuous ECDF}
 
-Not only can be generalise ECDFs to the multivariate case, we can also generalise them to the continuous case. In principle, continuous distribution functions should be better estimates than step distribution functions (for continuous random variables). However, estimating the continuous ECDF requires a high computational cost (often with only a small improvement in the estimate), hence continuous ECDFs are the default for univariate models, however step ECDFs are the default for two or more variables. There is another problem with continuous ECDFs. The method presented here has the potential to produce negative values for the distribution function. The reasons for this and a solution are discussed later (also in the section on model expansion).
+Not only can be generalise ECDFs to the multivariate case, we can also generalise them to the continuous case. In principle, continuous distribution functions should be better estimates than step distribution functions (for continuous random variables). However, estimating the continuous ECDF requires a high computational cost (often with only a small improvement in the estimate). There is another problem with continuous ECDFs. The method presented here has the potential to produce negative values for the distribution function. The solution is discussed later (in the section on model correction).
 
 We can treat our realised values, as forming an irregularly spaced grid. This allows us to produce a continuous distribution function by linear interpolation over vertices of that grid. This is simple in the univariate case (where a one dimension grid, is quite trivial). For any vertex (here simply any realised value, $u \in \mathbf {x}$), we can compute the value of a distribution function $\mathrm {F}_X^* (u)$ over that vertex. We make a slight modification to our standard expression so that the values of our distribution function are between 0 and 1.
 \[	\mathrm {F}_X^* (u) = \frac {\sum_{\forall i} \mathrm {I} (\mathbf {x}_{[i]} \leq u) - 1}{n - 1}
@@ -141,49 +144,46 @@ We can generalise this to $k$ variables. For a grid with $k$ variables, there wi
 \begin {center}
 <<fig=TRUE>>=
 m = mecdf (x, continuous=TRUE)
-plotbcdf (m, simple=FALSE)
+plotbcdf (m, regular=FALSE)
 @
 \end {center}
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Section
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \msec {Projecting ECDFs onto Unit Cubes}
 
-It is possible to project an ECDF model onto a unit (potentially hyper) cube, with marginal distributions on the interval (0, 1). I have no idea if this is useful or not. However, we can do it very easily (by replacing realised values with their index, if we were to sort them, one variable at a time), it's kind of interesting, and it does have a vague resemblance to a certain other multivariate approach, so why not...
+It is possible to project an ECDF model onto a unit (potentially hyper) cube, with uniform marginals. I have no idea if this is useful or not. However, we can do it very easily (by replacing realised values with their index, if we were to sort them, one variable at a time), it's kind of interesting, and it does have a vague resemblance to a certain other multivariate approach, so why not...
 \begin {center}
 <<fig=TRUE>>=
 m = mecdf (x, continuous=TRUE, project=TRUE)
-plotbcdf (m, simple=FALSE)
+plotbcdf (m, regular=FALSE)
 @
 \end {center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Section
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\msec {Model Expansion}
+\msec {Model Correction}
 
-The mecdf function contains an argument expand (which represents what we will describe as an expansion factor). If this is NA it doesn't do anything. However if it is a numeric value (and it's 0.1 by default), two fake realisations are added to our sample. For each variable, the range is computed, multiplied by the expansion factor, to give an offset, then one value is computed for the minimum actual value less the offset, and another value for the maximum value plus the offset. There are two reasons for doing this. 
+The mecdf function contains the arguments expand and expandf. The first indicates whether or not a correction should be done (by expanding the data). If a correction is done, the second indicates the expansion factor. For step functions, expand defaults to false. For continuous functions, expand defaults to true.
 
-Firstly, often the values in our sample, do not represent to smallest and largest possible values, and this method provides a simple heuristic-based allowance for this.
+When expand is true, two fake observations are added to our sample. One represents the (new) minimum, over all variables. The other, the (new) maximum over all variables. They are computed as follows, for each variable, the range (difference between actual minimum and maximum value) is computed, multiplied by the expansion factor, to give an offset, then one value is computed for the minimum actual value less the offset and another value for the maximum value plus the offset.
 
-The second reason is a solution to a problem that can arise using the interpolation method described earlier (for two or more variables).
+The main reason for doing this is that the interpolation method described earlier (for two or more variables), can produce invalid models unless there's some form of correction first.
 
-Obviously, when creating a continuous ECDF model we need a continuous distribution function. A distribution function should be monotonically non-decreasing in the direction of each variable, and only have values between 0 and 1. However, there is only a subtle difference between being monotonically non-decreasing and monotonically increasing. 
+Intuitively, a continuous multivariate CDF model should be monotonically non-decreasing in the direction of each variable and only have values between 0 and 1. Not so intuitively, the empirical (continuous) case, requires that the function is zero-valued for domain values less than or equal to minimum observed values, for every variable.
 
-ECDFs, even in the continuous case, have a step-like quality, whenever we move over the surface and pass a vertex, there is a tendency to increase the value of the function representing the surface. The method presented for interpolation is monotonically non-decreasing if we consider any value in the domain (over even any vertex), however it is monotonically increasing if we only consider the expected surface at the actual realisations.
+This requirement isn't satisfied unless their is one single realisation, that represents the minimum observed values for every variable.
 
-Which is where the problem arises. For two values $u_1$ and $u_2$, which define a vertex (on a bivariate continuous ECDF), if $u_1$ is equal to the smallest realised value of our first variable, the distribution function must be 0. However there are two possible cases here, $u_2$ could the smallest realised value of our second variable (in which case there's no problem), however if not, the vertex $(u_1, u_2)$ defines a point where the distribution function needs to increase in the direction of the second variable, hence we have values where our distribution should be zero, however they also need to increase from a smaller value to a larger value.
-
-The simple heuristic presented above, also fixes this problem, because the extra points, ensure that the above situation can never happen.
+A vaguely similar argument can be constructed for domain values greater than or equal to maximum values, requiring a single realisation representing the maximum for every variable.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Section
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \msec {The Bivariate Normal vs The Bivariate ECDF}
 
-First let us consider a (standard) bivariate normal distribution. We will create three examples with no correlation, perfect positive correlation and perfect negative correlation. We are going to use the mvtnorm package to help us.
+First let us consider a bivariate normal distribution. We will create three examples with no correlation, perfect positive correlation and perfect negative correlation. We are going to use the mvtnorm package to help us.
 
 <<>>=
 #get warmed up...
@@ -247,20 +247,7 @@ plotbcdf (mneg)
 \item Martin Maechler, for creating a starting point (namely, the original ecdf function in R).
 \item The mvtnorm package authors, for creating another starting point (namely, the mvtnorm package).
 \item Christophe Dutang, for providing some very valuable feedback, especially to some of my earlier ideas.
-
 \end {itemize}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Section
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\msec {Todo}
-
-\begin {enumerate}
-\item Refine the theoretical framework for the models.
-\item Create some more examples, including examples with more than two random variables.
-\item Give the plotting functions more options.
-\item Optimise, optimise and optimise some more...
-\end {enumerate}
 
 \end{document}
 

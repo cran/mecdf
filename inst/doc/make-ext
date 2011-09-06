@@ -1,0 +1,8 @@
+bldcmd=R CMD Sweave
+
+mecdf.pdf: mecdf.tex maia2.sty
+	pdflatex mecdf.tex
+
+mecdf.tex: mecdf.rnw
+	$(bldcmd) mecdf.rnw
+

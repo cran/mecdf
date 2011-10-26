@@ -14,7 +14,7 @@ library (mecdf)
 
 \setkeys{Gin}{width=0.6\textwidth}
 
-\mtitle {mecdf}{0.6.0}{Multivariate Empirical\\Cumulative Distribution Functions}
+\mtitle {mecdf}{0.6.1}{Multivariate Empirical\\Cumulative Distribution Functions}
 
 \mabstract {This vignette gives an overview of the mecdf package. The main purpose of the package, is to use multivariate empirical cumulative distribution functions (multivariate ECDFs) to model real-world data. The package also supports both step functions and continuous functions.}
 

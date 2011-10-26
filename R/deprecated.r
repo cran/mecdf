@@ -19,7 +19,7 @@ mecdf.theme = function (theme)
 	else stop ("unsupported theme")
 }
 
-.mecdfcols = function (sline="black", sfill1=c (0.92, 0.92, 0.92), sfill2=sfill,
+.mecdfcols = function (sline="black", sfill1=c (0.92, 0.92, 0.92), sfill2=sfill1,
 	fline="grey70", ffill="grey95")
 {	options (mecdf.frame=list (line=fline, fill=ffill) )
 	options (mecdf.surface = list (line=sline, fill1=sfill1, fill2=sfill2) )
@@ -45,4 +45,5 @@ ecdfinv = function (x, p, sort=TRUE)
 		}
 	}
 }
+
 

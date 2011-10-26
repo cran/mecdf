@@ -56,11 +56,7 @@ mecdf = function (x, continuous=FALSE, ...,
 	}
 }
 
-print.mecdf = function (x, ...) s3x_print (m=x, ...)
-
-plot.mecdf = function (x, ...) s3x_plot (m=x, ...)
-
-s3x_print.mecdf = function (m, ...)
+print.mecdf = function (m, ...)
 {	variate = if (m$nc == 1) "univariate"
 	else if (m$nc == 2) "bivariate"
 	else paste (m$nc, "-variate", sep="")
@@ -69,7 +65,7 @@ s3x_print.mecdf = function (m, ...)
 	print (samp (m$x) )
 }
 
-s3x_plot.mecdf = function (m, ...)
+plot.mecdf = function (m, ...)
 {	p = m (m$x)
 	if (m$nc == 1) .uecdf.plot (m, p, m$continuous, ...)
 	else if (m$nc == 2) .becdf.plot (m, p, ...)
@@ -101,5 +97,6 @@ s3x_plot.mecdf = function (m, ...)
 	}
 	text (x1, x2, round (p, 2) )
 }
+
 
 
